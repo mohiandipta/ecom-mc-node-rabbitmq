@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const { default: mongoose } = require('mongoose')
 const amqp = require('amqplib')
+const createOrder = require('./controllers/order.controller')
 
 const app = express()
 
@@ -31,9 +32,22 @@ async function connectToRabbitMQ() {
 
 connectToRabbitMQ()
 .then(() => {
-    channel.consume('order-service-queue')
+    channel.consume('order-service-queue', async (data) => {
+        try {
+            const { product } = JSON.parse(data.content.toString())
+            const newOrder = await createOrder(product)
+
+            channel.ack(data)
+            channel.sendToQueue('product-service-queue', Buffer.from(JSON.stringify(newOrder)))
+        } catch (error) {
+            console.error('Error processing message:', error.message);
+            channel.nack(data, false, false); // Reject the message
+        }
+    })
 })
-.catch(() => {})
+.catch((error) => {
+    console.log(error)
+})
 
 
 app.listen(8002, () => {

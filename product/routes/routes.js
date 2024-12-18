@@ -32,14 +32,14 @@ router.post('/', async (req, res) => {
 })
 
 router.post('/buy', async (req, res) => {
-    const {productId} = req.body
-    if (!productId) {
+    const {productIds} = req.body
+    if (!productIds) {
         return res.status(400).json({
             message: 'Please provide product id'
         })
     }
 
-    const product = await Product.find({_id: {$in: productId}})
+    const product = await Product.find({_id: {$in: productIds}})
     
     channel.sendToQueue('order-service-queue', 
         Buffer.from(JSON.stringify({product}))
@@ -48,7 +48,7 @@ router.post('/buy', async (req, res) => {
     channel.consume('product-service-queue', (data) => {
         console.log('Consumed from product service queue!')
 
-        order = JSON.parse(data)
+        order = JSON.parse(data.content.toString())
         channel.ack(data)
     })
 
