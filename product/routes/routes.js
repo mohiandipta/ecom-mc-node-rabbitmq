@@ -1,12 +1,12 @@
 const Router = require('express').Router
 const router = new Router()
-const Product = require('../model/product')
+const Product = require('../model/product.model')
 const amqp = require('amqplib')
 
 let connection, channel, order
 
 async function connectToRabbitMQ() {
-    const amqpServer = await 'amqp://guest:guest@localhost:5672'
+    const amqpServer = await 'amqp://guest:guest@localhost:5673'
     connection = await amqp.connect(amqpServer)
 
     channel = await connection.createChannel()

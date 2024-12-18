@@ -11,7 +11,7 @@ app.use(cors())
 
 app.use('/product', productRouter)
 
-mongoose.connect('mongodb://mohian:mohian12345@localhost:27017/product-db', {
+mongoose.connect('mongodb://mohian:mohian12345@localhost:27017/product-db?authSource=admin', {
     // useNewUrlParser: true,
     // useUnifiedTopology: true
 })
